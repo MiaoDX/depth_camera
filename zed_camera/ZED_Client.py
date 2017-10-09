@@ -14,10 +14,13 @@ class ZED_Client(object):
     The ZED client, call the flask APP and deal with download from the http.server
     """
 
-    def __init__(self):
-        self.rest_url = 'http://127.0.0.1:5000/'
-        self.download_url = 'http://127.0.0.1:8001/'
+    def __init__(self, rest_url='http://127.0.0.1:5000/', download_url='http://127.0.0.1:8001/', download_dir='download_dir'):
+        self.rest_url = rest_url
+        self.download_url = download_url
+        self.download_dir = download_dir
 
+        if not os.path.exists(self.download_dir):
+            os.makedirs(self.download_dir)
 
     def generate_cmd_and_parse_response(self, cmd=''):
         if cmd[0] == '/':
@@ -78,36 +81,31 @@ class ZED_Client(object):
             for data in tqdm(response.iter_content()):
                 handle.write(data)
 
-    def download_im(self, im_name, save_dir='output'):
+    def download_im(self, im_name):
 
-        print("\nGoing to download {} into folder {}\n".format(im_name, save_dir))
-
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        print("\nGoing to download {} into folder {}\n".format(im_name, self.download_dir))
 
         base_name = os.path.basename(im_name)
-        save_name = os.path.join(save_dir, base_name)
+        save_name = os.path.join(self.download_dir, base_name)
         self.download_file(self.download_url+base_name, save_name)
 
         return save_name
 
 
 
-    def download_ims(self, im_names, save_dir='output'):
+    def download_ims(self, im_names):
         # im_names_json = get_im_names()
         # im_names = [im_names_json['left_file'], im_names_json['right_file'], im_names_json['left_depth_file']]
 
         im_names_save = []
 
         for name in im_names:
-            im_names_save.append(self.download_im(name, save_dir))
+            im_names_save.append(self.download_im(name))
 
         return im_names_save
 
 
-if __name__ == "__main__":
-
-
+def test():
     zed_client = ZED_Client()
 
     zed_client.check_available()
@@ -122,5 +120,10 @@ if __name__ == "__main__":
     im_names = [im_names_json['left_file'], im_names_json['right_file'], im_names_json['left_depth_file']]
     zed_client.download_ims(im_names)
 
-    zed_client.download_im(im_names_json['left_file'], save_dir='output2')
+    zed_client.download_im(im_names_json['left_file'])
 
+
+
+if __name__ == "__main__":
+
+    test()

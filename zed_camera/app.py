@@ -40,4 +40,4 @@ def stop():
 if __name__ == '__main__':
     R_ZED = Restful_ZED()
     # app.run(debug=True)
-    app.run()
+    app.run(host='0.0.0.0')
