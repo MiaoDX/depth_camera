@@ -14,6 +14,7 @@ import sys
 
 import numpy as np
 import time
+import subprocess
 
 class Restful_ZED(object):
 
@@ -44,6 +45,8 @@ class Restful_ZED(object):
 
         self._start(init_params)
 
+        self._serve_the_images()
+
         self.image_mat = core.PyMat() # the image mat, useful for all capturing
 
         self.im_num = 0
@@ -63,8 +66,54 @@ class Restful_ZED(object):
             print("We failed to open the ZED camera, exit!")
             exit(1)
 
+
+    def _serve_the_images(self):
+        """
+        https://eli.thegreenplace.net/2017/interacting-with-a-long-running-child-process-in-python/
+        """
+        print("Going to serve the images ...")
+
+
+        import http.server
+        import socketserver
+        PORT = 8001
+
+        web_dir = os.path.join(self.work_dir)
+        os.chdir(web_dir)
+
+        """
+        Handler = http.server.SimpleHTTPRequestHandler
+        with socketserver.TCPServer(("", PORT), Handler) as httpd:
+            print("serving files at port", PORT)
+
+            from threading import Thread
+            Thread(target=httpd.serve_forever).start()
+        """
+        self.proc = subprocess.Popen(['python', '-u', '-m', 'http.server', str(PORT)],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+
+        print("serving files at port", PORT)
+
+    def available(self):
+        return self.zed.is_zed_connected() and self.zed.is_opened()
+
     def stop(self):
         self.zed.close()
+        # self.httpd.shutdown()
+
+        print("Going to terminate file server")
+        self.proc.terminate()
+        try:
+            outs, _ = self.proc.communicate(timeout=0.2)
+            # We'll see it exiting with -15 which means killed by SIGTERM
+            print('== subprocess exited with rc =', self.proc.returncode)
+            print(outs.decode('utf-8'))
+        except subprocess.TimeoutExpired:
+            print('subprocess did not terminate in time')
+
+
+
         pass
 
 
@@ -105,16 +154,22 @@ class Restful_ZED(object):
         self.left_depth_view_file = self.file_name_no_suffix + "_depth_view.png"
 
     def _get_images_names(self):
-        return [self.left_file, self.right_file, self.left_depth_file]
+        # return [self.left_file, self.right_file, self.left_depth_file]
+        return {"left_file":self.left_file, "right_file":self.right_file, "left_depth_file":self.left_depth_file}
 
 
-    def grab_rgb_and_depth(self):
+    def grab_rgb_and_depth(self, save=True):
 
         # Grab once, a PyRuntimeParameters object must be given to grab()
         if not self.zed.grab(self.runtime_parameters) == tp.PyERROR_CODE.PySUCCESS:
             print("Seems we failed to grab images")
             self._assign_image_names(False)
             return self._get_images_names()
+
+        time.sleep(0.5)  # make sure will have enough time for new capturing
+
+        if save == False:
+            return
 
         self.im_num += 1
         self._assign_image_names(True)
@@ -130,12 +185,14 @@ class Restful_ZED(object):
         self.zed.retrieve_image(self.image_mat, sl.PyVIEW.PyVIEW_DEPTH)
         cv2.imwrite(self.left_depth_view_file, self.image_mat.get_data())
 
+        
         self.zed.retrieve_measure(self.image_mat, sl.PyMEASURE.PyMEASURE_DEPTH)
         # zcam.save_mat_depth_as(self.image_mat, sl.PyDEPTH_FORMAT.PyDEPTH_FORMAT_PNG, self.left_depth_file[:-4] + '_zed.png')
         im_measure = np.uint16(self.image_mat.get_data())
         cv2.imwrite(self.left_depth_file, im_measure)
 
-        time.sleep(0.5) # make sure will have enough time for new capturing
+
+
 
         print("Get images done")
         return self._get_images_names()
@@ -158,6 +215,9 @@ def test_info():
     R_ZED = Restful_ZED()
 
     R_ZED.get_camera_parameters()
+
+
+    time.sleep(2)
 
     R_ZED.stop()
 

@@ -16,6 +16,7 @@ def index():
 
 @app.route('/grab/images', methods=['GET'])
 def get_images():
+    R_ZED.grab_rgb_and_depth(save=False) # I have no idea, but, it seems we need grab twice ...
     im_names = R_ZED.grab_rgb_and_depth()
     return jsonify({'image_names': im_names})
 
@@ -24,6 +25,9 @@ def camera_info():
     K1, K2 = R_ZED.get_camera_parameters()
     return jsonify({'K1': K1, 'K2':K2})
 
+@app.route('/available', methods=['GET'])
+def available():
+    return jsonify({'available': R_ZED.available()})
 
 @app.route('/stop', methods=['GET'])
 def stop():
