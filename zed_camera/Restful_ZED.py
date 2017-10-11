@@ -39,7 +39,8 @@ class Restful_ZED(object):
         self.runtime_parameters = zcam.PyRuntimeParameters()
         # runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_FILL
 
-        self.work_dir = os.path.split(os.path.realpath(__file__))[0] + "/Restful_ZED"
+        self.work_dir = os.path.split(os.path.realpath(__file__))[0] + "/Restful_ZED/" + time.strftime("%Y%m%d_%H%M", time.localtime())
+        print("Work Dir:{}".format(self.work_dir))
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
 
@@ -73,22 +74,10 @@ class Restful_ZED(object):
         """
         print("Going to serve the images ...")
 
-
-        import http.server
-        import socketserver
         PORT = 8001
-
         web_dir = os.path.join(self.work_dir)
         os.chdir(web_dir)
 
-        """
-        Handler = http.server.SimpleHTTPRequestHandler
-        with socketserver.TCPServer(("", PORT), Handler) as httpd:
-            print("serving files at port", PORT)
-
-            from threading import Thread
-            Thread(target=httpd.serve_forever).start()
-        """
         self.proc = subprocess.Popen(['python', '-u', '-m', 'http.server', str(PORT)],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
