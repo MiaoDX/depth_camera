@@ -137,8 +137,10 @@ class Restful_ZED(object):
         self.file_name_no_suffix = "{save_dir}/{time_str}_{im_num}".format(save_dir=self.work_dir,
                                                                                  time_str=time_str, im_num=self.im_num)
 
-        self.left_file = self.file_name_no_suffix + '.jpg'
-        self.right_file = self.file_name_no_suffix + '_right.jpg'
+        # self.left_file = self.file_name_no_suffix + '.jpg'
+        # self.right_file = self.file_name_no_suffix + '_right.jpg'
+        self.left_file = self.file_name_no_suffix + '.png'
+        self.right_file = self.file_name_no_suffix + '_right.png'
         self.left_depth_file = self.file_name_no_suffix + '_depth.png'
         self.left_depth_view_file = self.file_name_no_suffix + "_depth_view.png"
 
