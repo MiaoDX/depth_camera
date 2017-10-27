@@ -39,11 +39,11 @@ class ZED_Client(object):
         print("Status:{}".format(available))
         return available
 
-    def stop(self):
-        r_json = self.generate_cmd_and_parse_response('/stop')
-        status = r_json['Stop']
-        print("Status:{}".format(status))
-        return status
+    # def stop(self):
+    #     r_json = self.generate_cmd_and_parse_response('/stop')
+    #     status = r_json['Stop']
+    #     print("Status:{}".format(status))
+    #     return status
 
 
     def get_camera_info(self):
