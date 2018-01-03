@@ -29,10 +29,10 @@ def camera_info():
 def available():
     return jsonify({'available': R_ZED.available()})
 
-@app.route('/stop', methods=['GET'])
-def stop():
-    R_ZED.stop()
-    return jsonify({'Stop': True})
+# @app.route('/stop', methods=['GET'])
+# def stop():
+#     R_ZED.stop()
+#     return jsonify({'Stop': True})
 
 
 
