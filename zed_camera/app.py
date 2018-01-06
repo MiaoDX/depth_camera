@@ -38,6 +38,6 @@ def available():
 
 
 if __name__ == '__main__':
-    R_ZED = Restful_ZED()
+    R_ZED = Restful_ZED(write2disk=True)
     # app.run(debug=True)
     app.run(host='0.0.0.0')

@@ -16,9 +16,15 @@ import numpy as np
 import time
 import subprocess
 
-class Restful_ZED(object):
+from CameraBase import CameraCalibration, CameraBase
+from pytypes import override
 
-    def __init__(self):
+class Restful_ZED(CameraBase):
+
+    def __init__(self, write2disk=False):
+
+        self.write2dist = write2disk
+
         # Create a PyZEDCamera object
         self.zed = zcam.PyZEDCamera()
 
@@ -26,7 +32,7 @@ class Restful_ZED(object):
         init_params = zcam.PyInitParameters()
         # init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_HD1080  # Use HD1080 video mode
         init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_HD720
-        init_params.camera_fps = 10  # 30 is default
+        # init_params.camera_fps = 10  # 30 is default
 
         # init_params.enable_right_side_measure = True
 
@@ -39,14 +45,17 @@ class Restful_ZED(object):
         self.runtime_parameters = zcam.PyRuntimeParameters()
         # runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_FILL
 
-        self.work_dir = os.path.split(os.path.realpath(__file__))[0] + "/Restful_ZED/" + time.strftime("%Y%m%d_%H%M", time.localtime())
-        print("Work Dir:{}".format(self.work_dir))
-        if not os.path.exists(self.work_dir):
-            os.mkdir(self.work_dir)
 
-        self._start(init_params)
+        if self.write2dist:
+            self.work_dir = os.path.split(os.path.realpath(__file__))[0] + "/Restful_ZED/" + time.strftime("%Y%m%d_%H%M", time.localtime())
+            print("Work Dir:{}".format(self.work_dir))
+            if not os.path.exists(self.work_dir):
+                os.mkdir(self.work_dir)
 
-        self._serve_the_images()
+            self._serve_the_images()
+
+        self._start(init_params) # where to start the camera is not so clear
+
 
         self.image_mat = core.PyMat() # the image mat, useful for all capturing
 
@@ -58,15 +67,26 @@ class Restful_ZED(object):
         self.left_depth_show_file = ""
 
 
+        K1, K2 = self.get_camera_parameters()
+        K1 = np.array(K1).astype(np.float32).reshape(3, 3)
+        K2 = np.array(K2).astype(np.float32).reshape(3, 3)
+
+        super(Restful_ZED, self).__init__(cameraCalibration = CameraCalibration(leftK=K1, rightK=K2))
+
         print("Init done")
 
     def _start(self, init_params):
         # Open the camera
+        if self.available():
+            return True
+
         err = self.zed.open(init_params)
         if err != tp.PyERROR_CODE.PySUCCESS:
             print("We failed to open the ZED camera, exit!")
-            exit(1)
+            # exit(1)
+            return False
 
+        return True
 
     def _serve_the_images(self):
         """
@@ -89,21 +109,20 @@ class Restful_ZED(object):
 
     def stop(self):
         self.zed.close()
-        # self.httpd.shutdown()
 
-        print("Going to terminate file server")
-        self.proc.terminate()
-        try:
-            outs, _ = self.proc.communicate(timeout=0.2)
-            # We'll see it exiting with -15 which means killed by SIGTERM
-            print('== subprocess exited with rc =', self.proc.returncode)
-            print(outs.decode('utf-8'))
-        except subprocess.TimeoutExpired:
-            print('subprocess did not terminate in time')
+        if self.write2dist:
+            print("Going to terminate file server")
+            self.proc.terminate()
+            try:
+                outs, _ = self.proc.communicate(timeout=0.2)
+                # We'll see it exiting with -15 which means killed by SIGTERM
+                print('== subprocess exited with rc =', self.proc.returncode)
+                print(outs.decode('utf-8'))
+            except subprocess.TimeoutExpired:
+                print('subprocess did not terminate in time')
+                return False
 
-
-
-        pass
+        return True
 
 
     def get_camera_parameters(self):
@@ -149,7 +168,7 @@ class Restful_ZED(object):
         return {"left_file":self.left_file, "right_file":self.right_file, "left_depth_file":self.left_depth_file}
 
 
-    def grab_rgb_and_depth(self, save=True):
+    def grab_rgb_and_depth(self, pre_grab=False): # it seem that the first grab is somewhat wrong, grab twice to make sure it is ok
 
         # Grab once, a PyRuntimeParameters object must be given to grab()
         if not self.zed.grab(self.runtime_parameters) == tp.PyERROR_CODE.PySUCCESS:
@@ -159,7 +178,7 @@ class Restful_ZED(object):
 
         time.sleep(0.5)  # make sure will have enough time for new capturing
 
-        if save == False:
+        if pre_grab == False:
             return
 
         self.im_num += 1
@@ -168,56 +187,84 @@ class Restful_ZED(object):
         print("Going to retrieve images: {} ...".format(self.file_name_no_suffix))
 
         self.zed.retrieve_image(self.image_mat, sl.PyVIEW.PyVIEW_LEFT)
-        cv2.imwrite(self.left_file, self.image_mat.get_data())
+        im_left = self.image_mat.get_data()
 
         self.zed.retrieve_image(self.image_mat, sl.PyVIEW.PyVIEW_RIGHT)
-        cv2.imwrite(self.right_file, self.image_mat.get_data())
+        im_right = self.image_mat.get_data()
 
         self.zed.retrieve_image(self.image_mat, sl.PyVIEW.PyVIEW_DEPTH)
-        cv2.imwrite(self.left_depth_view_file, self.image_mat.get_data())
+        im_depth_view = self.image_mat.get_data()
 
-        
         self.zed.retrieve_measure(self.image_mat, sl.PyMEASURE.PyMEASURE_DEPTH)
         # zcam.save_mat_depth_as(self.image_mat, sl.PyDEPTH_FORMAT.PyDEPTH_FORMAT_PNG, self.left_depth_file[:-4] + '_zed.png')
         im_measure = np.uint16(self.image_mat.get_data())
-        cv2.imwrite(self.left_depth_file, im_measure)
+
+
+        if self.write2dist:
+            cv2.imwrite(self.left_file, im_left)
+            cv2.imwrite(self.right_file, im_right)
+            cv2.imwrite(self.left_depth_view_file, im_depth_view)
+            cv2.imwrite(self.left_depth_file, im_measure)
 
 
 
 
         print("Get images done")
-        return self._get_images_names()
+        return self._get_images_names(), im_left, im_measure
 
     def run(self):
         pass
 
 
-def test_grab():
-    R_ZED = Restful_ZED()
+    @override
+    def open(self) -> bool:
+        return self._start(self.runtime_parameters)
+
+    @override
+    def close(self) -> bool:
+        return self.stop()
+
+    @override
+    def getImage(self) -> (np.ndarray, np.ndarray):
+        self.grab_rgb_and_depth(pre_grab=True) # grab first
+        im_names, rgb_image, depth_image = self.grab_rgb_and_depth()
+        return rgb_image, depth_image
+
+    @override
+    def getParameters(self) -> dict:
+        return {}
+
+    @override
+    def setParameters(self, params : dict) -> bool:
+        return False
+
+
+def test_grab(write2disk=False):
+    R_ZED = Restful_ZED(write2disk)
+
+    R_ZED.open()
 
     for i in range(1):
         R_ZED.grab_rgb_and_depth()
 
-
-    R_ZED.stop()
+    R_ZED.close()
 
 
 def test_info():
     R_ZED = Restful_ZED()
 
-    R_ZED.get_camera_parameters()
+    R_ZED.open()
 
+    R_ZED.get_camera_parameters()
 
     time.sleep(2)
 
-    R_ZED.stop()
-
-
-
+    R_ZED.close()
 
 
 
 if __name__ == "__main__":
 
-    # test_grab()
-    test_info()
+    test_grab(write2disk=False)
+    # test_grab(write2disk=True)
+    # test_info()
