@@ -12,7 +12,7 @@ def direct():
 
     start = time.time()
 
-    n = 1000
+    n = 50
 
     for i in range(n):
         R_ZED.grab_rgb_and_depth()
@@ -24,7 +24,7 @@ def direct():
     R_ZED.stop()
 
     print("elapsed time:{}".format(etime))
-    print("Ave {} eps".format(n/etime))
+    print("Ave {} fps".format(n/etime))
 
 def restful():
 
@@ -43,7 +43,7 @@ def restful():
 
     start = time.time()
 
-    n = 1000
+    n = 50
 
     for i in range(n):
         im_names_json = zed_client.get_im_names()
@@ -53,11 +53,11 @@ def restful():
     etime = time.time() - start
 
     print("elapsed time:{}".format(etime))
-    print("Ave {} eps".format(n / etime))
+    print("Ave {} fps".format(n / etime))
 
 
 if __name__ == '__main__':
 
-    direct()
+    # direct()
 
     restful()
