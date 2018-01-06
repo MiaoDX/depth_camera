@@ -34,6 +34,9 @@
 #include "ImageGrabber.h"
 #include <mosaic.h>
 
+using namespace ZedGrabber;
+using namespace std;
+
 bool grab = false;
 std::shared_ptr<ZedGrabber::Grabber> grabber;
 cv::Size displaySize(720, 404);
@@ -146,7 +149,7 @@ inline void argAnalyzer(int argc, char **argv)
   else
   {
     help();
-    exit(-1);
+    //exit(-1);
   }
 }
 
@@ -158,8 +161,21 @@ int main(int argc, char **argv)
     grabber = std::shared_ptr<ZedGrabber::Grabber>((new ZedGrabber::ImageGrabber(resolution, confidenceIdx, exposure)));
     char key = ' ';
     
+    int count = 0;
+    milliseconds start, end;
+    start = duration_cast< milliseconds >(system_clock::now ().time_since_epoch ());
+
     while (key != 'q')
     {
+        count++;
+        if ( count == 100 ) {
+            end = duration_cast< milliseconds >(system_clock::now ().time_since_epoch ());
+            double etime = (end.count () - start.count ()) / 1000.0;
+            cout << "AVE:" << count / etime << " fps" << endl;
+            start = end;
+            count = 0;
+        }
+        
       grabber->getData();
       cv::resize(grabber->frame(), frame, displaySize);
       cv::resize(grabber->depth16bit(), depth, displaySize);

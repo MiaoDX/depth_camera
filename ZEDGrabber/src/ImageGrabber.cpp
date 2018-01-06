@@ -74,14 +74,15 @@ ImageGrabber::ImageGrabber(const RESOLUTION& resolution, const int& confidence, 
 
     // To share data between sl::Mat and cv::Mat, use slMat2cvMat()
     // Only the headers and pointer to the sl::Mat are copied, not the data itself
-    _image_zed = Mat ( zedCamera->getResolution (), MAT_TYPE_8U_C4 );
+
+    zedCamera->retrieveImage ( _image_zed, VIEW_LEFT );
+    zedCamera->retrieveImage ( _depth_image_zed, VIEW_DEPTH );
+
+    //_image_zed = Mat ( zedCamera->getResolution (), MAT_TYPE_8U_C4 );
     m_frame = slMat2cvMat ( _image_zed );
 
-    _depth_image_zed = Mat ( zedCamera->getResolution (), MAT_TYPE_8U_C4 );
+    //_depth_image_zed = Mat ( zedCamera->getResolution (), MAT_TYPE_8U_C4 );
     m_depth = slMat2cvMat ( _depth_image_zed );
-
-    // m_frame = cv::Mat::zeros(height, width, CV_8UC4);
-    // m_depth = cv::Mat::zeros(height, width, CV_8UC4);    
 }
 
 bool ImageGrabber::finish()

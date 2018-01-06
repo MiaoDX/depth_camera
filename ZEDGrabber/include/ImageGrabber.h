@@ -56,6 +56,7 @@
 namespace ZedGrabber {
   
     using namespace sl;
+    using namespace std::chrono;
 
     class ImageGrabber : public Grabber
     {
