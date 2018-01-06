@@ -329,14 +329,20 @@ def test_info():
 
     print(R_ZED.camera_settings_table)
     print(R_ZED.camera_settings_value)
-
     R_ZED.getImage()
 
 
     R_ZED.setParameters({'BRIGHTNESS':8, 'HUE':5})
     print(R_ZED.camera_settings_value)
+    R_ZED.getImage()
+
+    v = R_ZED.camera_settings_value
+    v['BRIGHTNESS'] = 0
+    R_ZED.setParameters(v)
+    print(R_ZED.camera_settings_value)
 
     R_ZED.getImage()
+
 
     R_ZED.close()
 
