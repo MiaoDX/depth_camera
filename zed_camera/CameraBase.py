@@ -1,5 +1,6 @@
 import abc
 import numpy as np
+import typing
 
 class CameraCalibration(object):
     def __init__(self, leftK = np.array([[320, 0, 320], [0, 320, 240], [0, 0, 1]]),
@@ -35,7 +36,7 @@ class CameraBase(object):
         return False
 
     @abc.abstractmethod
-    def getImage(self) -> (np.ndarray, np.ndarray):
+    def getImage(self) -> typing.Tuple[np.ndarray, np.ndarray]:
         rgb_image = np.ndarray(shape=(640, 480), dtype=np.uint8)
         depth_image = np.ndarray(shape=(640, 480), dtype=np.uint8)
         return rgb_image, depth_image

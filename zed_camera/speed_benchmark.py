@@ -3,12 +3,12 @@ A relatively simple speed benchmark for grabbing images (and showing it) via pyt
 Note that the speed is also related to the USB version (USB3 will be quicker that USB2)
 """
 
-from Restful_ZED import Restful_ZED
+from ZEDCamera import ZEDCamera
 import time
 
 def direct():
 
-    R_ZED = Restful_ZED()
+    R_ZED = ZEDCamera()
 
     start = time.time()
 
@@ -58,6 +58,6 @@ def restful():
 
 if __name__ == '__main__':
 
-    # direct()
+    direct()
 
-    restful()
+    # restful()

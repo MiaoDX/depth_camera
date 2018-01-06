@@ -2,7 +2,7 @@
 Code snippets for ZED Restful API with Flask
 """
 
-from Restful_ZED import Restful_ZED
+from ZEDCamera import ZEDCamera
 
 from flask import Flask, jsonify
 
@@ -16,8 +16,8 @@ def index():
 
 @app.route('/grab/images', methods=['GET'])
 def get_images():
-    R_ZED.grab_rgb_and_depth(save=False) # I have no idea, but, it seems we need grab twice ...
-    im_names = R_ZED.grab_rgb_and_depth()
+    R_ZED.grab_rgb_and_depth(pre_grab=True) # I have no idea, but, it seems we need grab twice ...
+    im_names = R_ZED.grab_rgb_and_depth()[0]
     return jsonify({'image_names': im_names})
 
 @app.route('/camera_info', methods=['GET'])
@@ -38,6 +38,6 @@ def available():
 
 
 if __name__ == '__main__':
-    R_ZED = Restful_ZED(write2disk=True)
+    R_ZED = ZEDCamera(write2disk=True)
     # app.run(debug=True)
     app.run(host='0.0.0.0')

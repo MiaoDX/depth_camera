@@ -18,8 +18,9 @@ import subprocess
 
 from CameraBase import CameraCalibration, CameraBase
 from pytypes import override
+import typing
 
-class Restful_ZED(CameraBase):
+class ZEDCamera(CameraBase):
 
     def __init__(self, write2disk=False):
 
@@ -71,7 +72,7 @@ class Restful_ZED(CameraBase):
         K1 = np.array(K1).astype(np.float32).reshape(3, 3)
         K2 = np.array(K2).astype(np.float32).reshape(3, 3)
 
-        super(Restful_ZED, self).__init__(cameraCalibration = CameraCalibration(leftK=K1, rightK=K2))
+        super(ZEDCamera, self).__init__(cameraCalibration = CameraCalibration(leftK=K1, rightK=K2))
 
         print("Init done")
 
@@ -130,6 +131,7 @@ class Restful_ZED(CameraBase):
         print("serial num:{}".format(info.serial_number))
         print("firmware_version:{}".format(info.firmware_version))
         py_calib = info.calibration_parameters
+        # print("All calibration_parameters:{}".format(py_calib))
         print("R\n:{}".format(py_calib.R))
         print("t\n:{}".format(py_calib.T))
 
@@ -178,13 +180,10 @@ class Restful_ZED(CameraBase):
 
         time.sleep(0.5)  # make sure will have enough time for new capturing
 
-        if pre_grab == False:
+        if pre_grab == True:
             return
 
-        self.im_num += 1
-        self._assign_image_names(True)
-
-        print("Going to retrieve images: {} ...".format(self.file_name_no_suffix))
+        print("Going to retrieve images ...")
 
         self.zed.retrieve_image(self.image_mat, sl.PyVIEW.PyVIEW_LEFT)
         im_left = self.image_mat.get_data()
@@ -201,6 +200,9 @@ class Restful_ZED(CameraBase):
 
 
         if self.write2dist:
+            self.im_num += 1
+            self._assign_image_names(True)
+            print("Going to retrieve images: {} ...".format(self.file_name_no_suffix))
             cv2.imwrite(self.left_file, im_left)
             cv2.imwrite(self.right_file, im_right)
             cv2.imwrite(self.left_depth_view_file, im_depth_view)
@@ -225,7 +227,7 @@ class Restful_ZED(CameraBase):
         return self.stop()
 
     @override
-    def getImage(self) -> (np.ndarray, np.ndarray):
+    def getImage(self) -> typing.Tuple[np.ndarray, np.ndarray]:
         self.grab_rgb_and_depth(pre_grab=True) # grab first
         im_names, rgb_image, depth_image = self.grab_rgb_and_depth()
         return rgb_image, depth_image
@@ -240,18 +242,21 @@ class Restful_ZED(CameraBase):
 
 
 def test_grab(write2disk=False):
-    R_ZED = Restful_ZED(write2disk)
+    R_ZED = ZEDCamera(write2disk)
 
     R_ZED.open()
 
     for i in range(1):
-        R_ZED.grab_rgb_and_depth()
+        rgb_image, depth_image = R_ZED.getImage()
+        cv2.imshow('1', rgb_image)
+        cv2.imshow('2', depth_image)
+        cv2.waitKey(0)
 
     R_ZED.close()
 
 
 def test_info():
-    R_ZED = Restful_ZED()
+    R_ZED = ZEDCamera()
 
     R_ZED.open()
 
@@ -265,6 +270,6 @@ def test_info():
 
 if __name__ == "__main__":
 
-    test_grab(write2disk=False)
+    # test_grab(write2disk=False)
     # test_grab(write2disk=True)
-    # test_info()
+    test_info()
