@@ -45,8 +45,7 @@ class ZEDCamera(CameraBase):
         # If the matched points are too small, we can embrace this to add more points in depth image
         self.runtime_parameters = zcam.PyRuntimeParameters()
         # runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_FILL
-        self.camera_settings_table = self.camera_settings_table()
-        self.camera_settings_value = self.getParameters()
+
 
         if self.write2dist:
             self.work_dir = os.path.split(os.path.realpath(__file__))[0] + "/Restful_ZED/" + time.strftime("%Y%m%d_%H%M", time.localtime())
@@ -56,8 +55,9 @@ class ZEDCamera(CameraBase):
 
             self._serve_the_images()
 
+        self.camera_settings_table = self.get_camera_settings_table()
         self._start(init_params) # where to start the camera is not so clear
-
+        self.camera_settings_value = self.getParameters()
 
         self.image_mat = core.PyMat() # the image mat, useful for all capturing
 
@@ -83,6 +83,7 @@ class ZEDCamera(CameraBase):
             return True
 
         err = self.zed.open(init_params)
+        self._set_default_camera_settings()
         if err != tp.PyERROR_CODE.PySUCCESS:
             print("We failed to open the ZED camera, exit!")
             # exit(1)
@@ -110,6 +111,7 @@ class ZEDCamera(CameraBase):
         return self.zed.is_zed_connected() and self.zed.is_opened()
 
     def stop(self):
+        self._set_default_camera_settings()
         self.zed.close()
 
         if self.write2dist:
@@ -233,8 +235,16 @@ class ZEDCamera(CameraBase):
         im_names, rgb_image, depth_image = self.grab_rgb_and_depth()
         return rgb_image, depth_image
 
+    def _set_default_camera_settings(self):
+        # self.setParameters({'EXPOSURE':-1, 'WHITEBALANCE':-1})
+        # print(self.camera_settings_value)
 
-    def set_camera_settings_table(self):
+        d = self.get_camera_settings_table() # will assign value below
+
+        for (k, v) in d.items():
+            self.zed.set_camera_settings(v, -1, use_default=True)
+
+    def get_camera_settings_table(self):
         """
         https://www.stereolabs.com/developers/documentation/API/v2.0.1/group__Enumerations.html
         CAMERA_SETTINGS_BRIGHTNESS
@@ -281,25 +291,26 @@ class ZEDCamera(CameraBase):
     @override
     def getParameters(self) -> dict:
 
-        d = self.camera_settings_table()
+        d = self.get_camera_settings_table() # will assign value below
 
-        for (k, v) in d:
+        for (k, v) in d.items():
             d[k] = self.zed.get_camera_settings(v)
 
         return d
 
     @override
     def setParameters(self, params : dict) -> bool:
-        for (k, v) in params:
+        for (k, v) in params.items():
             k = str(k).upper()
             v = int(v)
 
             if k in self.camera_settings_table:
-                print("PARMS,{}:{}".format(k, v))
-                self.zed.set_camera_settings(k, v)
+                setting_name = self.camera_settings_table[k]
+                print("PARMS {},{}:{}".format(k, setting_name,v))
+                self.zed.set_camera_settings(setting_name, v)
             else:
-                print("It seems that PARMS,{}:{} is not valid".format(k, v))
-                return False
+                print("It seems that PARMS {}:{} is not valid, continue".format(k, v))
+                # return False
 
         self.camera_settings_value = self.getParameters() # update the settings
         return True
@@ -319,7 +330,7 @@ def test_grab(write2disk=False):
 
     R_ZED.close()
 
-
+# {'WHITEBALANCE': 4600, 'BRIGHTNESS': 4, 'CONTRAST': 4, 'EXPOSURE': 54, 'HUE': 0, 'GAIN': 98, 'AUTO_WHITEBALANCE': 1, 'SATURATION': 4}
 def test_info():
     R_ZED = ZEDCamera(write2disk=True) # write to disk for the comparision in images
 
@@ -332,9 +343,14 @@ def test_info():
     R_ZED.getImage()
 
 
-    R_ZED.setParameters({'BRIGHTNESS':8, 'HUE':5})
-    print(R_ZED.camera_settings_value)
+    R_ZED.setParameters({'WHITEBALANCE':4200})
     R_ZED.getImage()
+    print(R_ZED.camera_settings_value)
+
+    R_ZED.setParameters({'AUTO_WHITEBALANCE': 1})
+    R_ZED.getImage()
+    print(R_ZED.camera_settings_value)
+
 
     v = R_ZED.camera_settings_value
     v['BRIGHTNESS'] = 0
