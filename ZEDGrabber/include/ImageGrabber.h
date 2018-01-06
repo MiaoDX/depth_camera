@@ -66,7 +66,8 @@ namespace ZedGrabber {
             virtual bool getData();
             virtual bool finish();
         private:
-            std::shared_ptr<sl::Camera> zedCamera;
+            //std::shared_ptr<sl::Camera> zedCamera;
+            sl::Camera* zedCamera;
             RuntimeParameters runtime_parameters;
             std::string name_;
             sl::Mat _depth;

@@ -38,7 +38,11 @@ using namespace ZedGrabber;
 using namespace std;
 
 bool grab = false;
-std::shared_ptr<ZedGrabber::Grabber> grabber;
+
+//std::shared_ptr<ZedGrabber::Grabber> grabber;
+ZedGrabber::Grabber* grabber;
+
+
 cv::Size displaySize(720, 404);
 cv::Mat frame, depth;
 sl::RESOLUTION resolution = sl::RESOLUTION_HD720;
@@ -158,7 +162,9 @@ int main(int argc, char **argv)
 {
     argAnalyzer(argc, argv);
 
-    grabber = std::shared_ptr<ZedGrabber::Grabber>((new ZedGrabber::ImageGrabber(resolution, confidenceIdx, exposure)));
+    // grabber = std::shared_ptr<ZedGrabber::Grabber>((new ZedGrabber::ImageGrabber(resolution, confidenceIdx, exposure)));
+    grabber = new ZedGrabber::ImageGrabber ( resolution, confidenceIdx, exposure );
+
     char key = ' ';
     
     int count = 0;

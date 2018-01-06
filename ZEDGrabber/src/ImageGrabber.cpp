@@ -36,7 +36,8 @@ ImageGrabber::ImageGrabber(const RESOLUTION& resolution, const int& confidence, 
     : ConfidenceIdx(confidence)
 {
     // zedCamera = std::shared_ptr<sl::Camera>(new sl::Camera());
-    zedCamera = std::make_shared<sl::Camera> ();
+    // zedCamera = std::make_shared<sl::Camera> ();
+    zedCamera = new sl::Camera ();
 
 
     // Set configuration parameters
