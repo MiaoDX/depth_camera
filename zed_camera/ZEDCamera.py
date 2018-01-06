@@ -45,7 +45,8 @@ class ZEDCamera(CameraBase):
         # If the matched points are too small, we can embrace this to add more points in depth image
         self.runtime_parameters = zcam.PyRuntimeParameters()
         # runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_FILL
-
+        self.camera_settings_table = self.camera_settings_table()
+        self.camera_settings_value = self.getParameters()
 
         if self.write2dist:
             self.work_dir = os.path.split(os.path.realpath(__file__))[0] + "/Restful_ZED/" + time.strftime("%Y%m%d_%H%M", time.localtime())
@@ -232,13 +233,77 @@ class ZEDCamera(CameraBase):
         im_names, rgb_image, depth_image = self.grab_rgb_and_depth()
         return rgb_image, depth_image
 
+
+    def set_camera_settings_table(self):
+        """
+        https://www.stereolabs.com/developers/documentation/API/v2.0.1/group__Enumerations.html
+        CAMERA_SETTINGS_BRIGHTNESS
+        Defines the brightness control. Affected value should be between 0 and 8.
+        CAMERA_SETTINGS_CONTRAST
+        Defines the contrast control. Affected value should be between 0 and 8.
+        CAMERA_SETTINGS_HUE
+        Defines the hue control. Affected value should be between 0 and 11.
+        CAMERA_SETTINGS_SATURATION
+        Defines the saturation control. Affected value should be between 0 and 8.
+        CAMERA_SETTINGS_GAIN
+        Defines the gain control. Affected value should be between 0 and 100 for manual control. If ZED_EXPOSURE is set to -1, the gain is in auto mode too.
+        CAMERA_SETTINGS_EXPOSURE
+        Defines the exposure control. A -1 value enable the AutoExposure/AutoGain control,as the boolean parameter (default) does. Affected value should be between 0 and 100 for manual control.
+        CAMERA_SETTINGS_WHITEBALANCE
+        Defines the color temperature control. Affected value should be between 2800 and 6500 with a step of 100. A value of -1 set the AWB ( auto white balance), as the boolean parameter (default) does.
+        CAMERA_SETTINGS_AUTO_WHITEBALANCE
+        Defines the status of white balance (automatic or manual). A value of 0 disable the AWB, while 1 activate it.
+
+        And pyzed/defines.py
+        PyCAMERA_SETTINGS_AUTO_WHITEBALANCE = None # (!) real value is ''
+        PyCAMERA_SETTINGS_BRIGHTNESS = None # (!) real value is ''
+        PyCAMERA_SETTINGS_CONTRAST = None # (!) real value is ''
+        PyCAMERA_SETTINGS_EXPOSURE = None # (!) real value is ''
+        PyCAMERA_SETTINGS_GAIN = None # (!) real value is ''
+        PyCAMERA_SETTINGS_HUE = None # (!) real value is ''
+        PyCAMERA_SETTINGS_LAST = None # (!) real value is ''
+        PyCAMERA_SETTINGS_SATURATION = None # (!) real value is ''
+        PyCAMERA_SETTINGS_WHITEBALANCE = None # (!) real value is ''
+        """
+        d = dict()
+
+        d['AUTO_WHITEBALANCE'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_AUTO_WHITEBALANCE
+        d['BRIGHTNESS'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_BRIGHTNESS
+        d['CONTRAST'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_CONTRAST
+        d['EXPOSURE'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_EXPOSURE
+        d['GAIN'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_GAIN
+        d['HUE'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_HUE
+        d['SATURATION'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_SATURATION
+        d['WHITEBALANCE'] = sl.PyCAMERA_SETTINGS.PyCAMERA_SETTINGS_WHITEBALANCE
+
+        return d
+
     @override
     def getParameters(self) -> dict:
-        return {}
+
+        d = self.camera_settings_table()
+
+        for (k, v) in d:
+            d[k] = self.zed.get_camera_settings(v)
+
+        return d
 
     @override
     def setParameters(self, params : dict) -> bool:
-        return False
+        for (k, v) in params:
+            k = str(k).upper()
+            v = int(v)
+
+            if k in self.camera_settings_table:
+                print("PARMS,{}:{}".format(k, v))
+                self.zed.set_camera_settings(k, v)
+            else:
+                print("It seems that PARMS,{}:{} is not valid".format(k, v))
+                return False
+
+        self.camera_settings_value = self.getParameters() # update the settings
+        return True
+
 
 
 def test_grab(write2disk=False):
@@ -256,13 +321,22 @@ def test_grab(write2disk=False):
 
 
 def test_info():
-    R_ZED = ZEDCamera()
+    R_ZED = ZEDCamera(write2disk=True) # write to disk for the comparision in images
 
     R_ZED.open()
 
     R_ZED.get_camera_parameters()
 
-    time.sleep(2)
+    print(R_ZED.camera_settings_table)
+    print(R_ZED.camera_settings_value)
+
+    R_ZED.getImage()
+
+
+    R_ZED.setParameters({'BRIGHTNESS':8, 'HUE':5})
+    print(R_ZED.camera_settings_value)
+
+    R_ZED.getImage()
 
     R_ZED.close()
 
