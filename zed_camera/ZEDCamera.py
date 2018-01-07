@@ -351,6 +351,14 @@ def test_info():
     R_ZED.getImage()
     print(R_ZED.camera_settings_value)
 
+    dir = "C:/Code/bird/AFGCD-master/data/data2"
+    ref_path = os.path.join(dir, 'ref.png')
+    ref_depth_path = os.path.join(dir, 'ref_depth.png')
+
+    image, image_depth = R_ZED.getImage()
+    cv2.imwrite(ref_path, image)
+    cv2.imwrite(ref_depth_path, image_depth)
+
 
     v = R_ZED.camera_settings_value
     v['BRIGHTNESS'] = 0
