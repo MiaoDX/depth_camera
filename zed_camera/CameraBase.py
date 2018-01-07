@@ -62,9 +62,23 @@ class CameraBase(object):
             import tkinter as tk  # for python 3
         except:
             import Tkinter as tk  # for python 2
-        root = tk.Tk()
-        app = Application(root, self)
-        root.mainloop()
+
+        import cv2
+        while True:
+            img = self.getImage()[0]  # rgb
+            cv2.imshow('img', img)
+            k = cv2.waitKey(5000)
+            if k == 27:  # Esc key to stop
+                break
+            elif k == ord('c'):
+                print("continue")
+                root = tk.Tk()
+                app = Application(root, self)
+                root.mainloop()
+
+
+
+
 
 if __name__ == '__main__':
 
