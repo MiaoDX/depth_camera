@@ -66,7 +66,7 @@
     </child>
     <child>
       <object class="ttk.Label" id="Label_1">
-        <property name="text" translatable="yes">brightness</property>
+        <property name="text" translatable="yes">Brightness</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -77,7 +77,7 @@
     </child>
     <child>
       <object class="ttk.Label" id="Lable_2">
-        <property name="text" translatable="yes">contrast</property>
+        <property name="text" translatable="yes">Contrast</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -110,7 +110,7 @@
     </child>
     <child>
       <object class="ttk.Label" id="Label_3">
-        <property name="text" translatable="yes">whitebalance</property>
+        <property name="text" translatable="yes">Whitebalance</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -131,7 +131,7 @@
     </child>
     <child>
       <object class="ttk.Label" id="Label_4">
-        <property name="text" translatable="yes">gain</property>
+        <property name="text" translatable="yes">Gain</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -165,7 +165,7 @@
     </child>
     <child>
       <object class="ttk.Label" id="Label_5">
-        <property name="text" translatable="yes">exposure</property>
+        <property name="text" translatable="yes">Exposure</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -208,6 +208,79 @@
           <property name="propagate">True</property>
           <property name="row">7</property>
           <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_6">
+        <property name="text" translatable="yes">Hue</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">8</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Scale" id="ID_HUE">
+        <property name="command">standalone_update</property>
+        <property name="from_">0</property>
+        <property name="orient">horizontal</property>
+        <property name="to">11</property>
+        <property name="value">0</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">8</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_HUE_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">8</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_7">
+        <property name="takefocus">false</property>
+        <property name="text" translatable="yes">Saturation</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">9</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Scale" id="ID_SATURATION">
+        <property name="command">standalone_update</property>
+        <property name="from_">0</property>
+        <property name="orient">horizontal</property>
+        <property name="takefocus">true</property>
+        <property name="to">8</property>
+        <property name="value">0</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">9</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_SATURATION_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">9</property>
         </layout>
       </object>
     </child>

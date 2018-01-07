@@ -65,9 +65,11 @@ class CameraBase(object):
 
         import cv2
         while True:
+
             img = self.getImage()[0]  # rgb
             cv2.imshow('img', img)
-            k = cv2.waitKey(5000)
+            k = cv2.waitKey(2000)
+
             if k == 27:  # Esc key to stop
                 break
             elif k == ord('c'):

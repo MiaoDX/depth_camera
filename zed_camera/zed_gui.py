@@ -64,6 +64,9 @@ class Application:
                 scale.configure(value=v)
                 label.configure(text=v)
 
+                if k == 'WHITEBALANCE':
+                    scale.configure(value=int(v/100))
+
             except:
                 print("Seems {} is not existing".format(k_id))
 
@@ -203,16 +206,23 @@ class Application:
         self._perform_settings_change()
 
 
-if __name__ == '__main__':
+def test_zed():
+    from ZEDCamera import ZEDCamera
+    c = ZEDCamera()
 
+    c.changeParametersGUI()
 
+    print(c.camera_settings_value)
 
+def plain_test():
     c = CameraBase()
-
-    # from ZEDCamera import ZEDCamera
-    # c = ZEDCamera()
-
     root = tk.Tk()
     app = Application(root, c)
     root.mainloop()
+
+if __name__ == '__main__':
+    test_zed()
+
+
+
 
