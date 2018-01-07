@@ -34,19 +34,50 @@ class Application:
         self.AutoExposure_flag = True
 
         self.var_awb_check = self.builder.get_variable('VAR_awb_check') # boolean value
-        self.var_awb_check.set(True)
-
         self.var_AutoExposure_check = self.builder.get_variable('VAR_auto_exposure_check')
-        self.var_AutoExposure_check.set(True)
-
         self.obj_AWB = self.builder.get_object('ID_WHITEBALANCE')
         self.obj_Gain = self.builder.get_object('ID_GAIN')
         self.obj_Exposure = self.builder.get_object('ID_EXPOSURE')
 
+        self.__assign_init_value()
+
+
+
+        builder.connect_callbacks(self)
+
+
+    def __assign_init_value(self):
+
+
+        for k in ['BRIGHTNESS', 'CONTRAST', 'HUE', 'SATURATION',
+                  'WHITEBALANCE', 'GAIN', 'EXPOSURE']:
+
+            k_id = 'ID_' + k  # specified in ui file
+            k_v_label = k_id + '_LABEL'
+
+            try:
+                label = self.builder.get_object(k_v_label)
+                scale = self.builder.get_object(k_id)
+
+                v = self.camera_settings_value[k]
+
+                scale.configure(value=v)
+                label.configure(text=v)
+
+            except:
+                print("Seems {} is not existing".format(k_id))
+
+
+
+        self.var_awb_check.set(True)
+        self.var_AutoExposure_check.set(True)
         self.awb_check_command() # init
         self.auto_exposure_check_command()
 
-        builder.connect_callbacks(self)
+        print("Init done")
+
+
+
 
 
     def _perform_settings_AWB(self):
@@ -153,27 +184,33 @@ class Application:
     def standalone_update(self, event):
 
         # {'WHITEBALANCE': 4600, 'BRIGHTNESS': 4, 'CONTRAST': 4, 'EXPOSURE': 54, 'HUE': 0, 'GAIN': 98, 'AUTO_WHITEBALANCE': 1, 'SATURATION': 4}
-        for k in ['BRIGHTNESS', 'CONTRAST']: # , 'HUE', 'SATURATION']:
+        for k in ['BRIGHTNESS', 'CONTRAST', 'HUE', 'SATURATION']:
 
             k_id = 'ID_'+k # specified in ui file
             k_v_label = k_id+'_LABEL'
 
-            label = self.builder.get_object(k_v_label)
-            scale = self.builder.get_object(k_id)
+            try:
+                label = self.builder.get_object(k_v_label)
+                scale = self.builder.get_object(k_id)
 
-            v = int(scale.get())
-            label.configure(text=v)
-            self.camera_settings_value[k] = v
+                v = int(scale.get())
+                label.configure(text=v)
+                self.camera_settings_value[k] = v
+            except:
+                print("Seems {} is not existing".format(k_id))
+
 
         self._perform_settings_change()
 
 
 if __name__ == '__main__':
 
-    from ZEDCamera import ZEDCamera
 
-    # c = CameraBase()
-    c = ZEDCamera()
+
+    c = CameraBase()
+
+    # from ZEDCamera import ZEDCamera
+    # c = ZEDCamera()
 
     root = tk.Tk()
     app = Application(root, c)
