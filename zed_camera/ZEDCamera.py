@@ -299,7 +299,7 @@ class ZEDCamera(CameraBase):
         return d
 
     @override
-    def setParameters(self, params : dict) -> bool:
+    def setParameters(self, params : dict, use_default=False) -> bool:
         for (k, v) in params.items():
             k = str(k).upper()
             v = int(v)
@@ -307,13 +307,21 @@ class ZEDCamera(CameraBase):
             if k in self.camera_settings_table:
                 setting_name = self.camera_settings_table[k]
                 print("PARMS {},{}:{}".format(k, setting_name,v))
-                self.zed.set_camera_settings(setting_name, v)
+
+                if use_default:
+                    self.zed.set_camera_settings(setting_name, -1, use_default=True)
+                else:
+                    self.zed.set_camera_settings(setting_name, v)
             else:
                 print("It seems that PARMS {}:{} is not valid, continue".format(k, v))
                 # return False
 
         self.camera_settings_value = self.getParameters() # update the settings
         return True
+
+    # @override
+    # def setParameters(self, params : dict) -> bool:
+    #     return self._setParameters(params, use_default=False)
 
 
 
@@ -363,6 +371,14 @@ def test_info():
     R_ZED.close()
 
 
+def test_change_gui():
+    R_ZED = ZEDCamera(write2disk=True) # write to disk for the comparision in images
+
+    R_ZED.open()
+
+    R_ZED.changeParametersGUI()
+
+    R_ZED.close()
 
 if __name__ == "__main__":
 

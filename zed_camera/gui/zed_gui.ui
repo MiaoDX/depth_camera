@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface>
+  <object class="ttk.Frame" id="mainwindow">
+    <property name="borderwidth">40</property>
+    <property name="height">800</property>
+    <property name="relief">raised</property>
+    <property name="width">200</property>
+    <layout>
+      <property name="column">4</property>
+      <property name="propagate">True</property>
+    </layout>
+    <child>
+      <object class="ttk.Scale" id="ID_BRIGHTNESS">
+        <property name="command">standalone_update</property>
+        <property name="from_">0</property>
+        <property name="orient">horizontal</property>
+        <property name="to">8</property>
+        <property name="value">0</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">1</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Scale" id="ID_CONTRAST">
+        <property name="command">standalone_update</property>
+        <property name="from_">0</property>
+        <property name="orient">horizontal</property>
+        <property name="to">8</property>
+        <property name="value">0</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">2</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Checkbutton" id="Checkbutton_1">
+        <property name="command">awb_check_command</property>
+        <property name="text" translatable="yes">AWB</property>
+        <property name="variable">boolean:VAR_awb_check</property>
+        <layout>
+          <property name="column">4</property>
+          <property name="propagate">True</property>
+          <property name="row">5</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Scale" id="ID_WHITEBALANCE">
+        <property name="command">on_whitebalance_change</property>
+        <property name="from_">28</property>
+        <property name="orient">horizontal</property>
+        <property name="to">65</property>
+        <property name="value">0</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">5</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_1">
+        <property name="text" translatable="yes">brightness</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">1</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Lable_2">
+        <property name="text" translatable="yes">contrast</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">2</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_BRIGHTNESS_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">1</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_CONTRAST_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">2</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_3">
+        <property name="text" translatable="yes">whitebalance</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">5</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_WHITEBALANCE_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">5</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_4">
+        <property name="text" translatable="yes">gain</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">6</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Scale" id="ID_GAIN">
+        <property name="command">on_gain_or_exposure_change</property>
+        <property name="from_">0</property>
+        <property name="orient">horizontal</property>
+        <property name="to">100</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">6</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_GAIN_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">6</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_5">
+        <property name="text" translatable="yes">exposure</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">7</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Scale" id="ID_EXPOSURE">
+        <property name="command">on_gain_or_exposure_change</property>
+        <property name="from_">0</property>
+        <property name="orient">horizontal</property>
+        <property name="to">100</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">7</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="ID_EXPOSURE_LABEL">
+        <property name="text" translatable="yes">0</property>
+        <layout>
+          <property name="column">3</property>
+          <property name="propagate">True</property>
+          <property name="row">7</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Checkbutton" id="Checkbutton_3">
+        <property name="command">auto_exposure_check_command</property>
+        <property name="text" translatable="yes">Auto Exposure</property>
+        <property name="variable">boolean:VAR_auto_exposure_check</property>
+        <layout>
+          <property name="column">4</property>
+          <property name="propagate">True</property>
+          <property name="row">7</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+  </object>
+</interface>

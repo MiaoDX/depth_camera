@@ -47,7 +47,8 @@ link_directories(${CUDA_LIBRARY_DIRS})
 SET(SRC_FOLDER src)
 SET(EXECUTABLE_OUTPUT_PATH ../bin)
 
-FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/*.cpp")
+#FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/*.cpp")
+FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/main.cpp" "${SRC_FOLDER}/ImageGrabber.cpp" "${SRC_FOLDER}/mosaic.cpp")
 
 add_executable(${execName} ${SRC_FILES})
 
@@ -58,3 +59,14 @@ TARGET_LINK_LIBRARIES( ${execName}
                         ${OpenCV_LIBRARIES}
 			${CUDA_CUDA_LIBRARY} ${CUDA_CUDART_LIBRARY} ${CUDA_npp_LIBRARY} 
                         )
+
+
+#set(SOURCE_FILES src/main.cpp)
+add_executable(${PROJECT_NAME} src/main2.cpp)
+set_target_properties(${PROJECT_NAME} PROPERTIES VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.6")
+set_target_properties(${PROJECT_NAME} PROPERTIES VS_DOTNET_REFERENCES "System")
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/clr /EHa")
+string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+
+TARGET_LINK_LIBRARIES(myproject)
