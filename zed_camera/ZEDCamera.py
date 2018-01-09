@@ -181,7 +181,7 @@ class ZEDCamera(CameraBase):
             self._assign_image_names(False)
             return self._get_images_names()
 
-        time.sleep(0.5)  # make sure will have enough time for new capturing
+        # time.sleep(0.5)  # make sure will have enough time for new capturing, it seems that this is unnecessary if we are grab twice
 
         if pre_grab == True:
             return
@@ -330,11 +330,11 @@ def test_grab(write2disk=False):
 
     R_ZED.open()
 
-    for i in range(1):
+    for i in range(100):
         rgb_image, depth_image = R_ZED.getImage()
         cv2.imshow('1', rgb_image)
         cv2.imshow('2', depth_image)
-        cv2.waitKey(0)
+        cv2.waitKey(1)
 
     R_ZED.close()
 
@@ -390,6 +390,6 @@ def test_change_gui():
 
 if __name__ == "__main__":
 
-    # test_grab(write2disk=False)
+    test_grab(write2disk=False)
     # test_grab(write2disk=True)
-    test_info()
+    # test_info()

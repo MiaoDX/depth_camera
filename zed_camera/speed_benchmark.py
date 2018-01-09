@@ -5,19 +5,22 @@ Note that the speed is also related to the USB version (USB3 will be quicker tha
 
 from ZEDCamera import ZEDCamera
 import time
+import cv2
 
-def direct():
+def direct(write2disk=False, show=False):
 
-    R_ZED = ZEDCamera()
+    R_ZED = ZEDCamera(write2disk=write2disk)
 
     start = time.time()
 
-    n = 50
+    n = 100
 
     for i in range(n):
-        R_ZED.grab_rgb_and_depth()
-        # time.sleep(0.001)
-        pass
+        im_names, rgb_image, depth_image = R_ZED.grab_rgb_and_depth()
+        if show:
+            cv2.imshow('1', rgb_image)
+            cv2.imshow('2', depth_image)
+            cv2.waitKey(1)
 
     etime = time.time() - start
 
@@ -26,7 +29,7 @@ def direct():
     print("elapsed time:{}".format(etime))
     print("Ave {} fps".format(n/etime))
 
-def restful():
+def restful(show=False):
 
     from ZED_Client import ZED_Client
 
@@ -43,12 +46,18 @@ def restful():
 
     start = time.time()
 
-    n = 50
+    n = 100
 
     for i in range(n):
         im_names_json = zed_client.get_im_names()
         # im_names = [im_names_json['left_file'], im_names_json['right_file'], im_names_json['left_depth_file']]
         # zed_client.download_ims(im_names)
+        if show:
+            rgb_image = cv2.imread(im_names_json['left_file'])
+            depth_image = cv2.imread(im_names_json['left_depth_file'], cv2.IMREAD_UNCHANGED)
+            cv2.imshow('1', rgb_image)
+            cv2.imshow('2', depth_image)
+            cv2.waitKey(1)
 
     etime = time.time() - start
 
@@ -58,6 +67,9 @@ def restful():
 
 if __name__ == '__main__':
 
-    direct()
+    direct(write2disk=False) # 16.47
+    # direct(write2disk=True) #  4.8978 fps
+    # direct(write2disk=False, show=True) # 12.633
 
-    # restful()
+    # restful() # 4.1403
+    # restful(show=True)  # 3.21
