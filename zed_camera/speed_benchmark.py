@@ -68,8 +68,9 @@ def restful(show=False):
 if __name__ == '__main__':
 
     direct(write2disk=False) # 16.47
-    # direct(write2disk=True) #  4.8978 fps
     # direct(write2disk=False, show=True) # 12.633
+    # direct(write2disk=True) #  4.8978 fps
+    # direct(write2disk=True, show=True)  # 4.77 fps
 
     # restful() # 4.1403
     # restful(show=True)  # 3.21
